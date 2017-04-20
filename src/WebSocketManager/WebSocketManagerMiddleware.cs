@@ -26,7 +26,7 @@ namespace WebSocketManager
                 return;
 
             var socket = await context.WebSockets.AcceptWebSocketAsync().ConfigureAwait(false);
-            await _webSocketHandler.OnConnected(socket).ConfigureAwait(false);
+            await _webSocketHandler.OnConnectedAsync(socket).ConfigureAwait(false);
 
             await Receive(socket, async (result, serializedInvocationDescriptor) =>
             {
@@ -40,7 +40,7 @@ namespace WebSocketManager
                 {
                     try
                     {
-                        await _webSocketHandler.OnDisconnected(socket);
+                        await _webSocketHandler.OnDisconnectedAsync(socket);
                     }
 
                     catch (WebSocketException)

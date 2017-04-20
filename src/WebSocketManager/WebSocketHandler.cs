@@ -22,7 +22,7 @@ namespace WebSocketManager
             WebSocketConnectionManager = webSocketConnectionManager;
         }
 
-        public virtual async Task OnConnected(WebSocket socket)
+        public virtual async Task OnConnectedAsync(WebSocket socket)
         {
             WebSocketConnectionManager.AddSocket(socket);
 
@@ -33,7 +33,7 @@ namespace WebSocketManager
             }).ConfigureAwait(false);
         }
 
-        public virtual async Task OnDisconnected(WebSocket socket)
+        public virtual async Task OnDisconnectedAsync(WebSocket socket)
         {
             await WebSocketConnectionManager.RemoveSocket(WebSocketConnectionManager.GetId(socket)).ConfigureAwait(false);
         }
@@ -92,7 +92,31 @@ namespace WebSocketManager
 
         public async Task ReceiveAsync(WebSocket socket, WebSocketReceiveResult result, string serializedInvocationDescriptor)
         {
-            var invocationDescriptor = JsonConvert.DeserializeObject<InvocationDescriptor>(serializedInvocationDescriptor);
+            InvocationDescriptor invocationDescriptor = null;
+            try
+            {
+                invocationDescriptor = JsonConvert.DeserializeObject<InvocationDescriptor>(serializedInvocationDescriptor);
+            }
+            catch (Exception)
+            {
+                await SendMessageAsync(socket, new Message()
+                {
+                    MessageType = MessageType.Text,
+                    Data = $"Cannot deserialize the message"
+                }).ConfigureAwait(false);
+                return;
+            }
+
+            if (invocationDescriptor == null || string.IsNullOrEmpty(invocationDescriptor.MethodName))
+            {
+                await SendMessageAsync(socket, new Message()
+                {
+                    MessageType = MessageType.Text,
+                    Data = $"Cannot find method {invocationDescriptor.MethodName}"
+                }).ConfigureAwait(false);
+                return;
+            }
+
 
             var method = this.GetType().GetMethod(invocationDescriptor.MethodName);
 
@@ -115,7 +139,7 @@ namespace WebSocketManager
                 await SendMessageAsync(socket, new Message()
                 {
                     MessageType = MessageType.Text,
-                    Data = $"The {invocationDescriptor.MethodName} method does not take {invocationDescriptor.Arguments.Length} parameters!"
+                    Data = $"The {invocationDescriptor.MethodName} method does not take {invocationDescriptor.Arguments?.Length} parameters!"
                 }).ConfigureAwait(false);
             }
 
