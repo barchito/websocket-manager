@@ -95,6 +95,17 @@ namespace WebSocketManager
             InvocationDescriptor invocationDescriptor = null;
             try
             {
+                if (string.IsNullOrEmpty(serializedInvocationDescriptor)) {
+                    await SendMessageAsync(socket, new Message()
+                    {
+                        MessageType = MessageType.Text,
+                        Data = "The message is empty"
+                    }).ConfigureAwait(false);
+                    return;
+
+                }
+
+
                 invocationDescriptor = JsonConvert.DeserializeObject<InvocationDescriptor>(serializedInvocationDescriptor);
             }
             catch (Exception)
