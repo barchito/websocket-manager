@@ -38,7 +38,7 @@ namespace WebSocketManager
             await WebSocketConnectionManager.RemoveSocket(WebSocketConnectionManager.GetId(socket)).ConfigureAwait(false);
         }
 
-        public async Task SendMessageAsync(WebSocket socket, Message message)
+        public virtual async Task SendMessageAsync(WebSocket socket, Message message)
         {
             if (socket.State != WebSocketState.Open)
                 return;
@@ -52,12 +52,12 @@ namespace WebSocketManager
                                    cancellationToken: CancellationToken.None).ConfigureAwait(false);
         }
 
-        public async Task SendMessageAsync(string socketId, Message message)
+        public virtual async Task SendMessageAsync(string socketId, Message message)
         {
             await SendMessageAsync(WebSocketConnectionManager.GetSocketById(socketId), message).ConfigureAwait(false);
         }
 
-        public async Task SendMessageToAllAsync(Message message)
+        public virtual async Task SendMessageToAllAsync(Message message)
         {
             foreach (var pair in WebSocketConnectionManager.GetAll())
             {
@@ -66,7 +66,7 @@ namespace WebSocketManager
             }
         }
 
-        public async Task InvokeClientMethodAsync(string socketId, string methodName, object[] arguments)
+        public virtual async Task InvokeClientMethodAsync(string socketId, string methodName, object[] arguments)
         {
             var message = new Message()
             {
@@ -81,7 +81,7 @@ namespace WebSocketManager
             await SendMessageAsync(socketId, message).ConfigureAwait(false);
         }
 
-        public async Task InvokeClientMethodToAllAsync(string methodName, params object[] arguments)
+        public virtual async Task InvokeClientMethodToAllAsync(string methodName, params object[] arguments)
         {
             foreach (var pair in WebSocketConnectionManager.GetAll())
             {
@@ -90,7 +90,7 @@ namespace WebSocketManager
             }
         }
 
-        public async Task ReceiveAsync(WebSocket socket, WebSocketReceiveResult result, string serializedInvocationDescriptor)
+        public virtual async Task ReceiveAsync(WebSocket socket, WebSocketReceiveResult result, string serializedInvocationDescriptor)
         {
             InvocationDescriptor invocationDescriptor = null;
             try
