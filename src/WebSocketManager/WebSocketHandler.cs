@@ -56,7 +56,6 @@ namespace WebSocketManager
             catch (Exception ex)
             {
                 await socket.CloseAsync(WebSocketCloseStatus.NormalClosure, null, CancellationToken.None);
-                await OnDisconnectedAsync(socket);
             }
 
         }

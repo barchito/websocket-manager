@@ -32,12 +32,13 @@ namespace WebSocketManager
 
         public async Task RemoveSocket(string id)
         {
-            WebSocket socket;
-            _sockets.TryRemove(id, out socket);
+            if (id != null)
+            {
+                WebSocket socket = null;
+                _sockets.TryRemove(id, out socket);
+            }
 
-            //await socket.CloseAsync(closeStatus: WebSocketCloseStatus.NormalClosure,
-            //                        statusDescription: "Closed by the WebSocketManager",
-            //                        cancellationToken: CancellationToken.None).ConfigureAwait(false);
+
         }
 
         private string CreateConnectionId()
